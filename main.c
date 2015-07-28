@@ -42,6 +42,7 @@
 #include "twi_master.h"
 #include "mma8451.h"
 #include "pedometer.h"
+#include "frame.h"
 
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT 0                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
@@ -121,6 +122,24 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
     NVIC_SystemReset();
 }
 
+void SendFrame(void)
+{
+	uint8_t	i;
+	uint32_t err_code;
+//	if(BleFrame.UpDate != 0)
+	{
+		BleFrame.FrameCheck = BCCCheck(&BleFrame.FrameData.Addr[0], FRAME_LENGTH);
+//		BleFrame.UpDate		= 0x0A;
+//		for(i=0;i<sizeof(BleFrame);i++)
+//			simple_uart_put( *((uint8_t *)&BleFrame + i) );		
+		err_code = ble_nus_send_string(&m_nus, (uint8_t *)&BleFrame, sizeof(BleFrame));
+		if (err_code != NRF_ERROR_INVALID_STATE)
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+//		BleFrame.UpDate = 0;
+	}
+}
 
 /**@brief       Assert macro callback function.
  *
@@ -146,13 +165,20 @@ static void read_gsensor_timeout_handler(void *p_context)
 	stepCounter();
 	if(STEPS > oldSTEPS)
 	{
+//		BleFrame.FrameData.StepCount[2] = STEPS & 0x0000FF;
+//		BleFrame.FrameData.StepCount[1] = (STEPS & 0x00FF00)>>8;
+//		BleFrame.FrameData.StepCount[0] = (STEPS & 0xFF0000)>>8;
+		BleFrame.FrameData.StepCount[2] = STEPS & 0xFF;
+		BleFrame.FrameData.StepCount[1] = (STEPS>>8) & 0xFF;
+		BleFrame.FrameData.StepCount[0] = (STEPS>>16) & 0xFF;
+		SendFrame();
 		printf("%d Steps\r\n", STEPS);
-		sprintf( (char*)print_str, "%08d", STEPS);
-        err_code = ble_nus_send_string(&m_nus, print_str, 8);
-        if (err_code != NRF_ERROR_INVALID_STATE)
-        {
-            APP_ERROR_CHECK(err_code);
-        }		
+//		sprintf( (char*)print_str, "%08d", STEPS);
+//        err_code = ble_nus_send_string(&m_nus, print_str, 8);
+//        if (err_code != NRF_ERROR_INVALID_STATE)
+//        {
+//            APP_ERROR_CHECK(err_code);
+//        }		
 	}
 	//printf("%d\t%d\t%d\r\n", accelData.x, accelData.y, accelData.z);
 	if(IntervalCounter >= 5)
@@ -446,18 +472,13 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-//            nrf_gpio_pin_set(CONNECTED_LED_PIN_NO);
-//            nrf_gpio_pin_clear(ADVERTISING_LED_PIN_NO);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 			application_timers_start();
             break;
             
         case BLE_GAP_EVT_DISCONNECTED:
-//            nrf_gpio_pin_clear(CONNECTED_LED_PIN_NO);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-
             advertising_start();
-
             break;
             
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
@@ -502,8 +523,9 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 //                                         NRF_GPIO_PIN_SENSE_LOW);
                 
                 // Go to system-off mode (this function will not return; wakeup will cause a reset)
-                err_code = sd_power_system_off();    
-                APP_ERROR_CHECK(err_code);
+                //err_code = sd_power_system_off();    
+                advertising_start();
+				APP_ERROR_CHECK(err_code);
             }
             break;
 
@@ -624,9 +646,7 @@ void UART0_IRQHandler(void)
 int main(void)
 {
     // Initialize
-//    leds_init();
     timers_init();
-//    buttons_init();
     uart_init();
     ble_stack_init();
     gap_params_init();
@@ -634,17 +654,17 @@ int main(void)
     advertising_init();
     conn_params_init();
     sec_params_init();
-    
-    simple_uart_putstring((uint8_t *)START_STRING);
- 
-	twi_master_init();
+    FrameInit();
 
+	//initiate G-Sensor
+	twi_master_init();
 	nrf_gpio_cfg_output(MMA8451_EN);
 	nrf_gpio_pin_set(MMA8451_EN);	
 	mma8451_init(0x1C);
 	
+	simple_uart_putstring((uint8_t *)START_STRING);
     advertising_start();
-    
+	
     // Enter main loop
     for (;;)
     {

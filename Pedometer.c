@@ -23,7 +23,7 @@ uint8_t Interval;
 uint8_t InvalidSteps;
 uint8_t SampleCounter;
 
-uint32_t STEPS;
+uint32_t STEPS = 0x123456;
 
 #if 0
 xyzdata_t getMax(xyzdata_t a, xyzdata_t b)

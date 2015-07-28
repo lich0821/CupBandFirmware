@@ -10,13 +10,14 @@ void FrameInit(void)
 	
 	BleFrame.FrameHead[0]	= FRAME_HEAD_1;
 	BleFrame.FrameHead[1]	= FRAME_HEAD_2;
-	BleFrame.FrameAddr[0]	= 0x12;	//read from flash
-	BleFrame.FrameAddr[1]	= 0x34;
-	BleFrame.FrameAddr[2]	= 0x56;
-	BleFrame.FrameAddr[3]	= 0x78;
-	BleFrame.FrameData.BreathIntL	= 0x00;
-	BleFrame.FrameData.BreathIntS	= 0xFF;
-	BleFrame.FrameTail		= FRAME_TAIL;
+	
+	BleFrame.FrameData.Addr[0]	= 0x12;	//read from flash
+	BleFrame.FrameData.Addr[1]	= 0x34;
+	BleFrame.FrameData.Addr[2]	= 0x56;
+	BleFrame.FrameData.Addr[3]	= 0x78;
+	
+	BleFrame.FrameTail[0]	= FRAME_TAIL_1;
+	BleFrame.FrameTail[1]	= FRAME_TAIL_2;
 }
 
 uint8_t BCCCheck(uint8_t *buf, uint8_t len)

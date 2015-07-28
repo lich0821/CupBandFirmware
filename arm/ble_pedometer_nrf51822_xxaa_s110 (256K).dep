@@ -14,7 +14,7 @@ I (..\..\..\..\..\Include\nrf51_deprecated.h)(0x540036EC)
 I (..\..\..\..\..\Include\compiler_abstraction.h)(0x540036EC)
 F (RTE\Device\nRF51822_xxAB\arm_startup_nrf51.s)(0x53FC078E)()
 F (RTE\Device\nRF51822_xxAB\system_nrf51.c)(0x53FC078E)()
-F (.\..\main.c)(0x55B61AB5)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\main.o --omf_browse .\_build\main.crf --depend .\_build\main.d)
+F (.\..\main.c)(0x55B71901)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\main.o --omf_browse .\_build\main.crf --depend .\_build\main.d)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\stdint.h)(0x52FDD27E)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\string.h)(0x52FDD27E)
 I (..\..\..\..\..\Include\nordic_common.h)(0x540036CC)
@@ -69,6 +69,7 @@ I (..\..\..\..\..\Include\sd_common\app_util_platform.h)(0x540036CC)
 I (..\..\..\..\..\Include\twi_master.h)(0x540036CC)
 I (..\mma8451.h)(0x55AE210D)
 I (..\pedometer.h)(0x55B1FBB1)
+I (..\frame.h)(0x55B6E33A)
 F (..\cb_twi_hw_master.c)(0x54A21F96)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\cb_twi_hw_master.o --omf_browse .\_build\cb_twi_hw_master.crf --depend .\_build\cb_twi_hw_master.d)
 I (..\twi_master_config.h)(0x54A21972)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x52FDD27E)
@@ -106,12 +107,12 @@ I (..\..\..\..\..\Include\system_nrf51.h)(0x540036EC)
 I (..\..\..\..\..\Include\nrf51_bitfields.h)(0x54AA7F23)
 I (..\..\..\..\..\Include\nrf51_deprecated.h)(0x540036EC)
 I (..\..\..\..\..\Include\compiler_abstraction.h)(0x540036EC)
-F (..\frame.c)(0x54B3837E)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\frame.o --omf_browse .\_build\frame.crf --depend .\_build\frame.d)
-I (..\frame.h)(0x54ABE07C)
+F (..\frame.c)(0x55B6E35B)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\frame.o --omf_browse .\_build\frame.crf --depend .\_build\frame.d)
+I (..\frame.h)(0x55B6E33A)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\stdint.h)(0x52FDD27E)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x52FDD27E)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\string.h)(0x52FDD27E)
-F (..\Pedometer.c)(0x55B1FBCF)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\pedometer.o --omf_browse .\_build\pedometer.crf --depend .\_build\pedometer.d)
+F (..\Pedometer.c)(0x55B6E7C6)(--c99 -c --cpu Cortex-M0 -D__MICROLIB --li -g -O0 --apcs=interwork -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\s110 -I..\..\..\..\..\Include\sd_common-I "\\vmware-host\Shared Folders\Mac 上的 Chuck\Work\CheilPengtai\Belt\nrf51822\Board\pca10001\s110\ble_pedometer\arm\RTE"-I C:\Tool\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include-I C:\Tool\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\7.2.1\Device\Include-D_RTE_ -DNRF51 -DBOARD_PCA10001 -DNRF51 -DDEBUG_NRF_USER -DBLE_STACK_SUPPORT_REQD -o .\_build\pedometer.o --omf_browse .\_build\pedometer.crf --depend .\_build\pedometer.d)
 I (..\pedometer.h)(0x55B1FBB1)
 I (C:\Tool\Keil_v5\ARM\ARMCC\include\stdint.h)(0x52FDD27E)
 I (..\mma8451.h)(0x55AE210D)
