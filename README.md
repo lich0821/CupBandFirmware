@@ -1,1 +1,0 @@
-A BLE Pedometer based on nRF51822

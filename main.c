@@ -26,6 +26,7 @@
 #include <string.h>
 #include "nordic_common.h"
 #include "nrf.h"
+#include "nrf_delay.h"
 #include "nrf51_bitfields.h"
 #include "ble_hci.h"
 #include "ble_advdata.h"
@@ -40,10 +41,10 @@
 #include "ble_debug_assert_handler.h"
 #include "app_util_platform.h"
 #include "twi_master.h"
-#include "mma8451.h"
-#include "pedometer.h"
-#include "frame.h"
-
+#include "adxl345.h"
+#include "led.h"
+#include "oled.h"  	
+#include "spi.h"
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT 0                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
 
@@ -53,13 +54,13 @@
 //#define ADVERTISING_LED_PIN_NO          LED_0                                       /**< LED to indicate advertising state. */
 //#define CONNECTED_LED_PIN_NO            LED_1                                       /**< LED to indicate connected state. */
 
-#define DEVICE_NAME                     "SmartBelt"                               /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "CupBand"                               /**< Name of device. Will be included in the advertising data. */
 
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout (in units of seconds). */
 
 #define APP_TIMER_PRESCALER             0                                           /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_MAX_TIMERS            2                                           /**< Maximum number of simultaneously created timers. */
+#define APP_TIMER_MAX_TIMERS            4                                           /**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE         4                                           /**< Size of timer operation queues. */
 
 #define MIN_CONN_INTERVAL               16                                          /**< Minimum acceptable connection interval (20 ms), Connection interval uses 1.25 ms units. */
@@ -81,8 +82,9 @@
 #define SEC_PARAM_MAX_KEY_SIZE          16                                          /**< Maximum encryption key size. */
 
 
-#define	READ__Gsensor_INTERVAL			APP_TIMER_TICKS(20, APP_TIMER_PRESCALER)
-#define	ONE_SECOND_INTERVAL				APP_TIMER_TICKS(20, APP_TIMER_PRESCALER)
+#define	READ_Gsensor_INTERVAL			APP_TIMER_TICKS(200, APP_TIMER_PRESCALER)
+#define	ONE_SECOND_INTERVAL				APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
+#define	ADC_SAMPLE_INTERVEL				APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
 
 #define START_STRING                    "Start...\r\n"                                /**< The string that will be sent over the UART when the application starts. */
 
@@ -92,11 +94,23 @@ static ble_gap_sec_params_t             m_sec_params;                           
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 static ble_nus_t                        m_nus;                                      /**< Structure to identify the Nordic UART Service. */
 
-static app_timer_id_t					m_read_gsensor_timer_id;
+static app_timer_id_t					m_adc_sample_id;
 static app_timer_id_t					m_one_second_timer_id;
-static uint8_t 							IntervalCounter=0;
-static uint32_t 						oldSTEPS;
+static app_timer_id_t					m_read_gsensor_timer_id;
+uint8_t xyzData[8];
 #endif
+
+
+
+
+typedef struct{
+	signed char Current;
+	signed char Real;
+	unsigned char Count;
+}WaterLevel;
+
+WaterLevel waterLevel;
+
 
 /**@brief     Error handler function, which is called when an error has occurred.
  *
@@ -122,25 +136,20 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
     NVIC_SystemReset();
 }
 
+/*
 void SendFrame(void)
 {
-	uint8_t	i;
 	uint32_t err_code;
-//	if(BleFrame.UpDate != 0)
 	{
-		BleFrame.FrameCheck = BCCCheck(&BleFrame.FrameData.Addr[0], FRAME_LENGTH);
-//		BleFrame.UpDate		= 0x0A;
-//		for(i=0;i<sizeof(BleFrame);i++)
-//			simple_uart_put( *((uint8_t *)&BleFrame + i) );		
+		BleFrame.FrameCheck = BCCCheck(&BleFrame.FrameData.Addr[0], FRAME_LENGTH);	
 		err_code = ble_nus_send_string(&m_nus, (uint8_t *)&BleFrame, sizeof(BleFrame));
 		if (err_code != NRF_ERROR_INVALID_STATE)
 		{
 			APP_ERROR_CHECK(err_code);
 		}
-//		BleFrame.UpDate = 0;
 	}
 }
-
+*/
 /**@brief       Assert macro callback function.
  *
  * @details     This function will be called in case of an assert in the SoftDevice.
@@ -157,78 +166,111 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
     app_error_handler(DEAD_BEEF, line_num, p_file_name);
 }
 
+static void adc_sample_timeout_handler(void *p_context)
+{
+//	uint32_t err_code;
+//	int16_t angle;
+//	static int16_t angleBackUp = 0;
+//	static uint8_t i=0;
+
+//	UNUSED_PARAMETER(p_context);
+//	oled_display_WaterLevel(i);
+//	i++;
+//	i %= 4;
+//	ADXL345_RD_XYZ(xyzData);
+//	angle = ADXL345_GetAngle(xyzData);
+//	if(angle != angleBackUp)
+//	{
+//		xyzData[7] = angle & 0xFF;
+//		xyzData[6] = (angle >> 8) & 0xFF;
+
+//		err_code = ble_nus_send_string(&m_nus, (uint8_t *)xyzData, sizeof(xyzData));
+//		if (err_code != NRF_ERROR_INVALID_STATE)
+//		{
+//			APP_ERROR_CHECK(err_code);
+//		}
+//	}
+//	angleBackUp = angle;
+}
+
 static void read_gsensor_timeout_handler(void *p_context)
 {
 	uint32_t err_code;
+
 	UNUSED_PARAMETER(p_context);
-	oldSTEPS = STEPS;
-	stepCounter();
-	if(STEPS > oldSTEPS)
+	ADXL345_RD_XYZ(xyzData);
+
+	waterLevel.Current = getWaterLevel(xyzData);
+	if(waterLevel.Current < waterLevel.Real)
 	{
-//		BleFrame.FrameData.StepCount[2] = STEPS & 0x0000FF;
-//		BleFrame.FrameData.StepCount[1] = (STEPS & 0x00FF00)>>8;
-//		BleFrame.FrameData.StepCount[0] = (STEPS & 0xFF0000)>>8;
-		BleFrame.FrameData.StepCount[2] = STEPS & 0xFF;
-		BleFrame.FrameData.StepCount[1] = (STEPS>>8) & 0xFF;
-		BleFrame.FrameData.StepCount[0] = (STEPS>>16) & 0xFF;
-		SendFrame();
-		printf("%d Steps\r\n", STEPS);
-//		sprintf( (char*)print_str, "%08d", STEPS);
-//        err_code = ble_nus_send_string(&m_nus, print_str, 8);
-//        if (err_code != NRF_ERROR_INVALID_STATE)
-//        {
-//            APP_ERROR_CHECK(err_code);
-//        }		
+		xyzData[7] = waterLevel.Real;
+		xyzData[6] = waterLevel.Current;
+
+		
+		if(waterLevel.Real < 0)
+		{
+			waterLevel.Real = 0;
+			return;
+		}
+		else
+		{
+			waterLevel.Real = waterLevel.Current;
+		}
+		err_code = ble_nus_send_string(&m_nus, (uint8_t *)xyzData, sizeof(xyzData));
+		if (err_code != NRF_ERROR_INVALID_STATE)
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+		if(waterLevel.Real < 0)
+		{
+			waterLevel.Real = 0;
+		}
+		oled_display_WaterLevel(waterLevel.Real);
+			
 	}
-	//printf("%d\t%d\t%d\r\n", accelData.x, accelData.y, accelData.z);
-	if(IntervalCounter >= 5)
+	
+	/*
+	angle = ADXL345_GetAngle(xyzData);
+	if(angle != angleBackUp)
 	{
-		IntervalCounter = 0;
-		Interval++;
+		xyzData[7] = angle & 0xFF;
+		xyzData[6] = (angle >> 8) & 0xFF;
+
+		err_code = ble_nus_send_string(&m_nus, (uint8_t *)xyzData, sizeof(xyzData));
+		if (err_code != NRF_ERROR_INVALID_STATE)
+		{
+			APP_ERROR_CHECK(err_code);
+		}
 	}
-	IntervalCounter++;
+	angleBackUp = angle;
+	*/
 }
+
 
 static void one_second_timeout_handler(void *p_context)
 {
-	uint32_t err_code;
-	UNUSED_PARAMETER(p_context);
-	oldSTEPS = STEPS;
-	stepCounter();
-	if(STEPS > oldSTEPS)
-	{
-		printf("%d Steps\r\n", STEPS);
-		sprintf( (char*)print_str, "%08d", STEPS);
-        err_code = ble_nus_send_string(&m_nus, print_str, 8);
-        if (err_code != NRF_ERROR_INVALID_STATE)
-        {
-            APP_ERROR_CHECK(err_code);
-        }		
-	}
-	//printf("%d\t%d\t%d\r\n", accelData.x, accelData.y, accelData.z);
-	if(IntervalCounter >= 5)
-	{
-		IntervalCounter = 0;
-		Interval++;
-	}
-	IntervalCounter++;
-#if 0
-	uint32_t err_code;
-	static uint16_t timeCnt=0;
+//	uint32_t err_code;
 	UNUSED_PARAMETER(p_context);
 
-	if(STEPS > oldSTEPS)
+	if(waterLevel.Real == 0 && waterLevel.Current > 6)
 	{
-		//printf("%d Steps\r\n", STEPS);
-		sprintf( (char*)print_str, "%04X", timeCnt);
-        err_code = ble_nus_send_string(&m_nus, print_str, 8);
-        if (err_code != NRF_ERROR_INVALID_STATE)
-        {
-            APP_ERROR_CHECK(err_code);
-        }		
+		waterLevel.Count++;
+		if(waterLevel.Count >= 10)
+		{
+			waterLevel.Real = 10;
+			waterLevel.Count = 0;
+			oled_display_WaterLevel(waterLevel.Real);
+		}
 	}
-#endif
+/*
+	err_code = ble_nus_send_string(&m_nus, (uint8_t *)xyzData, sizeof(xyzData));
+	if (err_code != NRF_ERROR_INVALID_STATE)
+	{
+		APP_ERROR_CHECK(err_code);
+	}
+*/
 }
+
 /**@brief   Function for Timer initialization.
  *
  * @details Initializes the timer module.
@@ -239,15 +281,19 @@ static void timers_init(void)
     // Initialize timer module
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
 	
+    err_code = app_timer_create(&m_adc_sample_id,
+                                APP_TIMER_MODE_REPEATED,
+                                adc_sample_timeout_handler);
+    APP_ERROR_CHECK(err_code);
+	
     err_code = app_timer_create(&m_read_gsensor_timer_id,
                                 APP_TIMER_MODE_REPEATED,
                                 read_gsensor_timeout_handler);
 	APP_ERROR_CHECK(err_code);
 	
-//    err_code = app_timer_create(&m_one_second_timer_id,
-//                                APP_TIMER_MODE_REPEATED,
-//                                one_second_timeout_handler);
-	
+    err_code = app_timer_create(&m_one_second_timer_id,
+                                APP_TIMER_MODE_REPEATED,
+                                one_second_timeout_handler);
     APP_ERROR_CHECK(err_code);	
 }
 
@@ -256,13 +302,18 @@ static void application_timers_start(void)
     uint32_t err_code;
 
     // Start application timers 
-    err_code = app_timer_start(m_read_gsensor_timer_id, READ__Gsensor_INTERVAL, NULL);
-	APP_ERROR_CHECK(err_code);	
-	//err_code = app_timer_start(m_one_second_timer_id, ONE_SECOND_INTERVAL, NULL);
+	err_code = app_timer_start(m_adc_sample_id, ADC_SAMPLE_INTERVEL, NULL);
     APP_ERROR_CHECK(err_code);	
+	
+    err_code = app_timer_start(m_read_gsensor_timer_id, READ_Gsensor_INTERVAL, NULL);
+	APP_ERROR_CHECK(err_code);	
+
+	err_code = app_timer_start(m_one_second_timer_id, ONE_SECOND_INTERVAL, NULL);
+	APP_ERROR_CHECK(err_code);	
 	
 }//
 
+#if 0
 static void application_timers_stop(void)
 {
     uint32_t err_code;
@@ -272,6 +323,7 @@ static void application_timers_stop(void)
     APP_ERROR_CHECK(err_code);	
 	
 }//app_timer_stop
+#endif
 
 /**@brief   Function for the GAP initialization.
  *
@@ -340,12 +392,20 @@ static void advertising_init(void)
 /**@snippet [Handling the data received over BLE] */
 void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
-    for (int i = 0; i < length; i++)
-    {
-        simple_uart_put(p_data[i]);
-    }
-    //simple_uart_put('\n');
-	simple_uart_putstring("\r\n");
+/*	
+	{
+		for (int i = 0; i < length; i++)
+		{
+			simple_uart_put(p_data[i]);
+		}
+		simple_uart_putstring((uint8_t*)"\r\n");	
+	}
+*/
+	if(p_data[0]<=10){
+		waterLevel.Real = p_data[0];
+		oled_display_WaterLevel(p_data[0]);
+	}
+		
 }
 /**@snippet [Handling the data received over BLE] */
 
@@ -455,6 +515,8 @@ static void advertising_start(void)
     err_code = sd_ble_gap_adv_start(&adv_params);
     APP_ERROR_CHECK(err_code);
 
+	LED1_Close();
+	LED2_Open();
 //    nrf_gpio_pin_set(ADVERTISING_LED_PIN_NO);
 }
 
@@ -473,7 +535,12 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     {
         case BLE_GAP_EVT_CONNECTED:
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-			application_timers_start();
+			//application_timers_start();
+
+			LED1_Open();
+			LED2_Close();
+			waterLevel.Real = 9;
+			oled_display_WaterLevel(waterLevel.Real);
             break;
             
         case BLE_GAP_EVT_DISCONNECTED:
@@ -596,6 +663,7 @@ static void power_manage(void)
 
 /**@brief  Function for initializing the UART module.
  */
+#if 0
 static void uart_init(void)
 {
     /**@snippet [UART Initialization] */
@@ -607,7 +675,7 @@ static void uart_init(void)
     NVIC_EnableIRQ(UART0_IRQn);
     /**@snippet [UART Initialization] */
 }
-
+#endif
 
 /**@brief   Function for handling UART interrupts.
  *
@@ -617,25 +685,11 @@ static void uart_init(void)
  */
 void UART0_IRQHandler(void)
 {
-    static uint8_t data_array[BLE_NUS_MAX_DATA_LEN];
-    static uint8_t index = 0;
-    uint32_t err_code;
-
+	static uint8_t uartData;
     /**@snippet [Handling the data received over UART] */
 
-    data_array[index] = simple_uart_get();
-    index++;
-
-    if ((data_array[index - 1] == '\n') || (index >= (BLE_NUS_MAX_DATA_LEN - 1)))
-    {
-        err_code = ble_nus_send_string(&m_nus, data_array, index + 1);
-        if (err_code != NRF_ERROR_INVALID_STATE)
-        {
-            APP_ERROR_CHECK(err_code);
-        }
-        
-        index = 0;
-    }
+	uartData = simple_uart_get();
+	simple_uart_put(uartData);
 
     /**@snippet [Handling the data received over UART] */
 }
@@ -647,24 +701,30 @@ int main(void)
 {
     // Initialize
     timers_init();
-    uart_init();
+	
+	led_init();  //初始化led
+	spi_pin_init(); //初始化spi和oled-pin
+	oled_init();    //初始化oled
+	
     ble_stack_init();
     gap_params_init();
     services_init();
     advertising_init();
     conn_params_init();
     sec_params_init();
-    FrameInit();
 
-	//initiate G-Sensor
 	twi_master_init();
-	nrf_gpio_cfg_output(MMA8451_EN);
-	nrf_gpio_pin_set(MMA8451_EN);	
-	mma8451_init(0x1C);
+	while(ADXL345_Init())
+	{
+		nrf_delay_ms(1000);
+	}
 	
-	simple_uart_putstring((uint8_t *)START_STRING);
+	//oled_showstr(0,0,"Adxl OK!");
+
+	oled_display_WaterLevel(0);
+	ADXL345_RD_XYZ(xyzData);
     advertising_start();
-	
+	application_timers_start();
     // Enter main loop
     for (;;)
     {

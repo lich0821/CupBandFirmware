@@ -45,7 +45,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\_build\</OutputDirectory>
-          <OutputName>ble_pedometer</OutputName>
+          <OutputName>ble_cupband</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -520,19 +520,24 @@
               <FilePath>..\cb_twi_hw_master.c</FilePath>
             </File>
             <File>
-              <FileName>mma8451.c</FileName>
+              <FileName>adxl345.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\mma8451.c</FilePath>
+              <FilePath>..\adxl345.c</FilePath>
             </File>
             <File>
-              <FileName>frame.c</FileName>
+              <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\frame.c</FilePath>
+              <FilePath>..\led.c</FilePath>
             </File>
             <File>
-              <FileName>Pedometer.c</FileName>
+              <FileName>oled.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Pedometer.c</FilePath>
+              <FilePath>..\oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\spi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1105,19 +1110,24 @@
               <FilePath>..\cb_twi_hw_master.c</FilePath>
             </File>
             <File>
-              <FileName>mma8451.c</FileName>
+              <FileName>adxl345.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\mma8451.c</FilePath>
+              <FilePath>..\adxl345.c</FilePath>
             </File>
             <File>
-              <FileName>frame.c</FileName>
+              <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\frame.c</FilePath>
+              <FilePath>..\led.c</FilePath>
             </File>
             <File>
-              <FileName>Pedometer.c</FileName>
+              <FileName>oled.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Pedometer.c</FilePath>
+              <FilePath>..\oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\spi.c</FilePath>
             </File>
           </Files>
         </Group>
